@@ -2,8 +2,10 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from scapy.all import sniff
+from scapy.utils import hexdump
 from scapy.layers.inet import IP, TCP, UDP, ICMP
 from scapy.layers.l2 import ARP
+from scapy.compat import raw
 from datetime import datetime
 import threading
 import json
@@ -61,20 +63,17 @@ pktFilterBtn.pack()
 pktList = ttk.Treeview(window, selectmode="browse")
 pktList["columns"] = ("c1","c2","c3", "c4", "c5")
 pktList.column("#0", width=0, minwidth=0, stretch=tk.NO)
-pktList.column("c1", width=100, minwidth=100, stretch=tk.YES)
-pktList.column("c2", width=100, minwidth=100, stretch=tk.YES)
-pktList.column("c3", width=50, minwidth=50, stretch=tk.YES)
-pktList.column("c4", width=50, minwidth=50, stretch=tk.YES)
-pktList.column("c4", width=100, minwidth=200, stretch=tk.YES)
+pktList.column("c1", width=70, minwidth=70, stretch=tk.NO)
+pktList.column("c2", width=90, minwidth=90, stretch=tk.NO)
+pktList.column("c3", width=90, minwidth=90, stretch=tk.NO)
+pktList.column("c4", width=50, minwidth=50, stretch=tk.NO)
+pktList.column("c5", width=100, minwidth=200, stretch=tk.YES)
 pktList.heading("#0",text="", anchor=tk.W)
 pktList.heading("c1", text="Time", anchor=tk.W)
 pktList.heading("c2", text="Source", anchor=tk.W)
 pktList.heading("c3", text="Dest", anchor=tk.W)
 pktList.heading("c4", text="Proto", anchor=tk.W)
 pktList.heading("c5", text="Message", anchor=tk.W)
-pktList.tag_configure("6", background="#E7E6FF", foreground="#12272E") #TCP
-pktList.tag_configure("17", background="#daeeff", foreground="#12272e") #UDP
-pktList.tag_configure("1", background="#daeeff", foreground="#fce0ff") #ICMP
 
 #set up coloring tags for each rule
 for crule in rules:
