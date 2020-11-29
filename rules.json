@@ -1,0 +1,26 @@
+{
+    "rules":[
+        {"rule":"TCP in pkt and (pkt[TCP].dport == 80 or pkt[TCP].sport == 80)", 
+            "name":"HTTP", "bg":"#e4ffc7", "fg":"#12272e",
+            "src":"str(pkt[IP].src)", "dst":"str(pkt[IP].dst)", "msg":"str(pkt.payload[:pkt.payload.index(b\"\\r\\n\")])"},
+        {"rule":"TCP in pkt and (pkt[TCP].dport == 443 or pkt[TCP].sport == 443)", 
+            "name":"HTTPS", "bg":"#e4ffc7", "fg":"#12272e",
+            "src":"str(pkt[IP].src)", "dst":"str(pkt[IP].dst)", "msg":"str(pkt[TCP].sport) + \"->\" + str(pkt[TCP].dport)"},
+        {"rule":"ARP in pkt", 
+            "name":"ARP", "bg":"#faf0d7", "fg":"#12272e",
+            "src":"str(pkt[ARP].hwsrc)", "dst":"str(pkt[ARP].hwdst)", "msg":"\"I dont even know\""},
+        {"rule":"ICMP in pkt", 
+            "name":"ICMP", "bg":"#daeeff", "fg":"#12272e",
+            "src":"str(pkt[IP].src)", "dst":"str(pkt[IP].dst)", "msg":"\"I dont even know\""},
+        {"rule":"UDP in pkt and pkt[UDP].dport == 53", 
+            "name":"DNS", "bg":"#daeeff", "fg":"#12272e",
+            "src":"str(pkt[IP].src)", "dst":"str(pkt[IP].dst)", "msg":"str(pkt[UDP].sport) + \"->\" + str(pkt[UDP].dport)"},
+        {"rule":"UDP in pkt", 
+            "name":"UDP", "bg":"#daeeff", "fg":"#12272e",
+            "src":"str(pkt[IP].src)", "dst":"str(pkt[IP].dst)", "msg":"str(pkt[UDP].sport) + \"->\" + str(pkt[UDP].dport)"},
+        {"rule":"TCP in pkt", 
+            "name":"TCP", "bg":"#e7e6ff", "fg":"#12272e",
+            "src":"str(pkt[IP].src)", "dst":"str(pkt[IP].dst)", "msg":"str(pkt[TCP].sport) + \"->\" + str(pkt[TCP].dport)"}
+    ]
+}
+
