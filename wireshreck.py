@@ -12,11 +12,12 @@ from scapy.utils import hexdump
 from scapy.layers.l2 import ARP
 from scapy.layers.inet import IP, TCP, UDP, ICMP
 
-exitPgrm = False        #application state
-reFilter = False        #enter state to apply new filter?
-pktFilter = ""          #current filter
-pkts = [None] * 10      #last 10 packets
-pktIndex = 0            #position of the last packet
+maxPackets = 10 
+exitPgrm = False                #application state
+reFilter = False                #enter state to apply new filter?
+pktFilter = ""                  #current filter
+pkts = [None] * maxPackets      #last 10 packets
+pktIndex = 0                    #position of the last packet
 
 rulesFile = open("rules.json")
 rules = json.load(rulesFile)["rules"]
@@ -41,15 +42,15 @@ def sniffThreadLoop():
         nonlocal numPackets
         aTime = datetime.now().strftime("%H:%M:%S")
         pkts[pktIndex] = (pkt, numPackets, aTime)
-        pktIndex = (pktIndex + 1) % 10
+        pktIndex = (pktIndex + 1) % maxPackets
         numPackets += 1
     while not exitPgrm:
-        sniff(filter=pktFilter, prn=onPacket, stop_filter=stopSniff)
+        sniff(filter=pktFilter, prn=onPacket, stop_filter=stopSniff, store=0)
 
 def updateDisplayLoop():
     while not exitPgrm:
-        for i in range(0, 10):
-            pktData = pkts[pktIndex + i - 10]
+        for i in range(0, maxPackets):
+            pktData = pkts[pktIndex + i - maxPackets]
             if pktData != None:
                 pkt, numPackets, aTime = pktData
                 for crule in rules:
@@ -58,10 +59,8 @@ def updateDisplayLoop():
                         dst = eval(crule["dst"])
                         prot = crule["name"]
                         msg = eval(crule["msg"])
-                        pktList.insert("", "end", values=(numPackets, aTime, src, dst, prot, msg), tags=(prot))
+                        pktList.item(pktListChildren[i], values=(numPackets, aTime, src, dst, prot, msg), tags=(prot))
                         break
-        if len(pktList.get_children()) > 20:
-            pktList.delete(*pktList.get_children()[0:10])
         time.sleep(0.5)
 
 
@@ -87,9 +86,13 @@ pktList.heading("c3", text="Source", anchor=tk.W)
 pktList.heading("c4", text="Dest", anchor=tk.W)
 pktList.heading("c5", text="Proto", anchor=tk.W)
 pktList.heading("c6", text="Message", anchor=tk.W)
+pktListChildren = []
+for i in range(0, maxPackets):
+    pktListChildren.append(pktList.insert("", "end", values=(0, 0, 0, 0, 0, 0), tags=("none")))
 
 
 #set up coloring tags for each rule
+pktList.tag_configure("none", background="#ffffff", foreground="#ffffff")
 for crule in rules:
     pktList.tag_configure(crule["name"], background=crule["bg"], foreground=crule["fg"])
 
@@ -103,7 +106,7 @@ pktList.pack(side="top", fill="both")
 
 updateThread = threading.Thread(target=updateDisplayLoop)
 sniffThread = threading.Thread(target=sniffThreadLoop)
-updateThread.start()
+#updateThread.start()
 sniffThread.start()
 window.mainloop()
 onStop()
