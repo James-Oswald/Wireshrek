@@ -54,15 +54,18 @@ def updateDisplayLoop():
             if pktData != None:
                 pkt, numPackets, aTime = pktData
                 for crule in rules:
-                    if eval(crule["rule"]):
-                        src = eval(crule["src"])
-                        dst = eval(crule["dst"])
-                        prot = crule["name"]
-                        msg = eval(crule["msg"])
-                        pktList.item(pktListChildren[i], values=(numPackets, aTime, src, dst, prot, msg), tags=(prot))
+                    try:
+                        if eval(crule["rule"]):
+                            src = eval(crule["src"])
+                            dst = eval(crule["dst"])
+                            prot = crule["name"]
+                            msg = eval(crule["msg"])
+                            pktList.item(pktListChildren[i], values=(numPackets, aTime, src, dst, prot, msg), tags=(prot))
+                            break
+                    except:
+                        pktList.item(pktListChildren[i], values=(numPackets, aTime, "unkown", "unkown", "unkown", "unkown"))
                         break
         time.sleep(0.5)
-
 
 window = tk.Tk()
 window.geometry("800x600")
@@ -106,7 +109,7 @@ pktList.pack(side="top", fill="both")
 
 updateThread = threading.Thread(target=updateDisplayLoop)
 sniffThread = threading.Thread(target=sniffThreadLoop)
-#updateThread.start()
+updateThread.start()
 sniffThread.start()
 window.mainloop()
 onStop()
